@@ -1,6 +1,6 @@
 # Node OAuth2 Server Implementation
 
-![OAuth2](https://cdn.auth0.com/website/assets/pages/homepage/img/std_cert/oauth2-360e300bd3.svg)
+<img alt="OAuth2" src="https://cdn.auth0.com/website/assets/pages/homepage/img/std_cert/oauth2-360e300bd3.svg" width="200">
 
 Understand the basic of an oauth2 server
 
