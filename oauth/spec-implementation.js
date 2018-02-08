@@ -12,6 +12,7 @@ const OAuthSpec = {};
 OAuthSpec.getAccessToken = accessToken => {
   return OAuthAccessToken.find({ accessToken })
     .populate("user")
+
     .populate("client");
 };
 
@@ -61,43 +62,39 @@ OAuthSpec.saveToken = (token, clientObj, userObj) => {
   } = token;
   const { _id: client } = clientObj;
   const { _id: user } = userObj;
+  const oAuthAccessToken = new OAuthAccessToken({
+    accessToken,
+    accessTokenExpiresAt,
+    client,
+    user,
+    scope
+  });
 
-  const promises = [
-    OAuthAccessToken.create({
-      accessToken,
-      accessTokenExpiresAt,
+  const promises = [oAuthAccessToken.save()];
+
+  // no refresh token for client_credentials
+  if (refreshToken) {
+    const oAuthRefreshToken = new OAuthRefreshToken({
+      refreshToken,
+      refreshTokenExpiresAt,
       client,
       user,
       scope
-    })
-  ];
+    });
+    promises.push(oAuthRefreshToken.save());
+  }
 
-  // no refresh token for client_credentials
-  if (refreshToken)
-    promises.push(
-      OAuthRefreshToken.create({
-        refreshToken,
-        refreshTokenExpiresAt,
-        client,
-        user,
-        scope
-      })
-    );
-
-  return Promise.all(promises).then(() => {
-    return Object.assign({
-      token,
-      {
-        client: clientObj,
-        user: userObj
-      }
-    })
-  };
+  return Promise.all(promises).then(() => ({
+    ...token,
+    ...{
+      client: clientObj,
+      user: userObj
+    }
+  }));
 };
 
 // code [Object], client [Object], user [Object]
 OAuthSpec.saveAuthorizationCode = (code, clientObj, userObj) => {
-
   const { expiresAt, scope, authorizationCode } = code;
   const { _id: client } = clientObj;
   const { _id: user } = userObj;
@@ -115,12 +112,12 @@ OAuthSpec.saveAuthorizationCode = (code, clientObj, userObj) => {
 };
 
 // token [Object] : Invoked to revoke a refresh token.
-OAuthSpec.revokeToken = (token) => {
+OAuthSpec.revokeToken = token => {
   const { refreshToken } = token;
 
   return OAuthRefreshToken.findOne({
-      refreshToken
-    })
+    refreshToken
+  })
     .lean()
     .then(function(rT) {
       //if (rT) rT.destroy();
@@ -130,14 +127,13 @@ OAuthSpec.revokeToken = (token) => {
     });
 };
 
-
 // code [Object]
-OAuthSpec.revokeAuthorizationCode = (codeObj) => {
+OAuthSpec.revokeAuthorizationCode = codeObj => {
   const { code } = codeObj;
 
   return OAuthAuthorizationCode.findOne({
-      code
-    })
+    code
+  })
     .lean()
     .then(function() {
       // set a previous date
@@ -148,7 +144,9 @@ OAuthSpec.revokeAuthorizationCode = (codeObj) => {
 
 // user [Object], client [Object], scope [String]: Invoked to check if the requested scope is valid for a particular client/user combination.
 OAuthSpec.validateScope = (user, client, scope) => {
-  return (user.scope === scope && client.scope === scope && scope !== null) ? scope : false
+  return user.scope === scope && client.scope === scope && scope !== null
+    ? scope
+    : false;
 };
 
 module.exports = OAuthSpec;
