@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/head %>
+</head>
+  <body>
+    <div class="card text-center">
+      <div>
+        <div>
+          <img class="profile-img-card" alt="OAuth2 Server" src="https://cdn.auth0.com/website/assets/pages/homepage/img/std_cert/oauth2-360e300bd3.svg" />
+          <h4><b><%= client_name %></b> would like to access your account on your behalf.</h4>
+          <p>Allow<b><%= client_name %></b> access?</p>
+        </div>
+        <div>
+          <form name="authform" method="post" action="/authorise">
+            <input type="hidden" name="response_type" value="<%= response_type %>" />
+            <input type="hidden" name="client_id" value="<%= client_id %>" />
+            <input type="hidden" name="redirect_uri" value="<%= redirect_uri %>" />
+            <input type="hidden" name="state" value="<%= state %>" />
+            <input type="checkbox" name="authorized" class="hide" />
+            <div>
+              <div class="form-group">
+                <input type="submit" onclick="document.forms['authform']['authorized'].checked = true" class="button" value="Yes" />
+                <input type="submit" onclick="document.forms['authform']['authorized'].checked = false" class="button" value="No" />
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

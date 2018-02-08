@@ -1,10 +1,12 @@
-const express = require("express");
 const cookieParser = require("cookie-parser");
-const bodyParser = require("body-parser");
 const OAuthServer = require("oauth2-server");
-const path = require("path");
+const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const express = require("express");
+const path = require("path");
+const cors = require("cors");
 const config = require("./config");
+const session = require("./middlewares/session")(config.sessionSecret);
 const authenticate = require("./oauth/authenticate");
 
 const port = process.env.PORT || 3000;
@@ -15,9 +17,14 @@ mongoose.connect(config.database, config.options, err => {
   console.log("Connected to mongodb.");
 });
 
+app.set("view engine", "ejs");
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(session);
+
+app.use(cors());
 
 require("./routes")(app);
 
