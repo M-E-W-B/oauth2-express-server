@@ -12,34 +12,32 @@ module.exports = app => {
     oauth
       .token(request, response)
       .then(token => res.json(token))
-      .catch(err => res.status(500).json(err));
+      .catch(next);
   });
 
-  app.post("/authorise", function(req, res) {
+  app.post("/authorise", function(req, res, next) {
+    console.log(req.session);
     const request = new Request(req);
     const response = new Response(res);
 
     return oauth
       .authorize(request, response, {
+        // to be implemented as mentioned in the oauth2 specs
         authenticateHandler: {
           handle: function(request, response) {
-            // return {
-            //   _id: "57382dd6e05342a003543d54",
-            //   username: "admin",
-            //   password: "admin"
-            // };
+            return request.session.user;
           }
         }
       })
       .then(success => res.json(success))
-      .catch(err => res.status(err.code || 500).json(err));
+      .catch(next);
   });
 
-  app.get("/authorise", function(req, res) {
+  app.get("/authorise", function(req, res, next) {
     const { client_id: clientId, redirect_uri: redirectUri } = req.query;
 
     return OAuthClient.findOne({ clientId, redirectUri })
       .then(model => res.json(model))
-      .catch(err => res.status(err.code || 500).json(err));
+      .catch(next);
   });
 };

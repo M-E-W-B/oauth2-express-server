@@ -1,46 +1,52 @@
 // Model Specs here:
 // http://oauth2-server.readthedocs.io/en/latest/model/spec.html#
 
-const OAuthAccessToken = require("./models/oauth-accesstoken");
-const OAuthRefreshToken = require("./models/oauth-refreshtoken");
-const OAuthAuthorizationCode = require("./models/oauth-authorizationcode");
-const OAuthClient = require("./models/oauth-client");
-const User = require("./models/user");
+const {
+  OAuthAccessToken,
+  OAuthRefreshToken,
+  OAuthAuthorizationCode,
+  OAuthClient,
+  User
+} = require("../models");
 const OAuthSpec = {};
 
 // accessToken [String]
 OAuthSpec.getAccessToken = accessToken => {
-  return OAuthAccessToken.find({ accessToken })
+  console.log("getAccessToken", accessToken);
+  return OAuthAccessToken.findOne({ accessToken })
     .populate("user")
-
     .populate("client");
 };
 
 // refreshToken [String]
 OAuthSpec.getRefreshToken = refreshToken => {
-  return OAuthRefreshToken.find({ refreshToken })
+  console.log("getRefreshToken", refreshToken);
+  return OAuthRefreshToken.findOne({ refreshToken })
     .populate("user")
     .populate("client");
 };
 
 // authorizationCode [String]
 OAuthSpec.getAuthorizationCode = authorizationCode => {
-  return OAuthAuthorizationCode.find({ authorizationCode })
+  console.log("getAuthorizationCode", authorizationCode);
+  return OAuthAuthorizationCode.findOne({ authorizationCode })
     .populate("user")
     .populate("client");
 };
 
 // clientId [String], clientSecret [String]
 OAuthSpec.getClient = (clientId, clientSecret) => {
+  console.log("getClient", { clientId, clientSecret });
   const options = { clientId };
 
   if (clientSecret) options.clientSecret = clientSecret;
 
-  return OAuthClient.find(options);
+  return OAuthClient.findOne(options);
 };
 
 // username [String], password [String]
 OAuthSpec.getUser = (username, password) => {
+  console.log("getUser", { username, password });
   return User.findOne({ username }).then(user => {
     return user.validPassword(password) ? user : false;
   });
@@ -48,11 +54,13 @@ OAuthSpec.getUser = (username, password) => {
 
 // client [Object] : only used for client_credentials grant type
 OAuthSpec.getUserFromClient = ({ clientId }) => {
+  console.log("getUserFromClient", clientId);
   return OAuthClient.findOne({ clientId }).populate("user");
 };
 
 // token [Object], client [Object], user [Object]
 OAuthSpec.saveToken = (token, clientObj, userObj) => {
+  console.log("saveToken", { token, clientObj, userObj });
   const {
     accessToken,
     accessTokenExpiresAt,
@@ -95,6 +103,7 @@ OAuthSpec.saveToken = (token, clientObj, userObj) => {
 
 // code [Object], client [Object], user [Object]
 OAuthSpec.saveAuthorizationCode = (code, clientObj, userObj) => {
+  console.log("saveAuthorizationCode", { code, clientObj, userObj });
   const { expiresAt, scope, authorizationCode } = code;
   const { _id: client } = clientObj;
   const { _id: user } = userObj;
@@ -113,6 +122,7 @@ OAuthSpec.saveAuthorizationCode = (code, clientObj, userObj) => {
 
 // token [Object] : Invoked to revoke a refresh token.
 OAuthSpec.revokeToken = token => {
+  console.log("revokeToken", token);
   const { refreshToken } = token;
 
   return OAuthRefreshToken.findOne({
@@ -129,6 +139,7 @@ OAuthSpec.revokeToken = token => {
 
 // code [Object]
 OAuthSpec.revokeAuthorizationCode = codeObj => {
+  console.log("revokeAuthorizationCode", codeObj);
   const { code } = codeObj;
 
   return OAuthAuthorizationCode.findOne({
@@ -142,11 +153,10 @@ OAuthSpec.revokeAuthorizationCode = codeObj => {
     });
 };
 
-// user [Object], client [Object], scope [String]: Invoked to check if the requested scope is valid for a particular client/user combination.
-OAuthSpec.validateScope = (user, client, scope) => {
-  return user.scope === scope && client.scope === scope && scope !== null
-    ? scope
-    : false;
+// accessToken [Object], scope [String]
+OAuthSpec.verifyScope = (accessToken, scope) => {
+  console.log("verifyScope", { accessToken, scope });
+  return accessToken.scope === scope;
 };
 
 module.exports = OAuthSpec;

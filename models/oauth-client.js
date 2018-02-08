@@ -20,6 +20,6 @@ module.exports = mongoose.model(
       }
     ],
     scope: String,
-    User: { type: Schema.Types.ObjectId, ref: "User" }
+    user: { type: Schema.Types.ObjectId, ref: "User" }
   })
 );

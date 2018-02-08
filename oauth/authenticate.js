@@ -3,9 +3,7 @@ const oauth = require("./instance");
 const Request = oauthServer.Request;
 const Response = oauthServer.Response;
 
-module.exports = function(options) {
-  const options = options || {};
-
+module.exports = function(options = {}) {
   return function(req, res, next) {
     const request = new Request({
       headers: { authorization: req.headers.authorization },
@@ -22,9 +20,6 @@ module.exports = function(options) {
         req.user = token;
         next();
       })
-      .catch(function(err) {
-        // Request is not authorized.
-        res.status(err.code || 500).json(err);
-      });
+      .catch(next);
   };
 };

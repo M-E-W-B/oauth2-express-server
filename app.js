@@ -3,8 +3,10 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const OAuthServer = require("oauth2-server");
 const path = require("path");
+const mongoose = require("mongoose");
 const config = require("./config");
 const authenticate = require("./oauth/authenticate");
+
 const port = process.env.PORT || 3000;
 const app = express();
 
@@ -45,7 +47,7 @@ app.use(function(req, res, next) {
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   console.log(err);
-  res.render("error", {
+  res.json({
     message: err.message,
     error: err
   });

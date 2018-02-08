@@ -1,0 +1,14 @@
+{
+  "_id": ObjectId("57382dd7e05342a003543d5b"),
+  "clientId": "democlient",
+  "clientSecret": "democlientsecret",
+  "redirectUris": ["http://localhost/cb"],
+  "grants": [
+    "authorization_code",
+    "password",
+    "refresh_token",
+    "client_credentials"
+  ],
+  "user": ObjectId("57382dd6e05342a003543d54"),
+  "__v": NumberInt(0)
+}
