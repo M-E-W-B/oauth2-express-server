@@ -29,16 +29,11 @@ app.use(cors());
 require("./routes")(app);
 
 // stage1: tested authentication
-app.get("/secure", authenticate(), function(req, res) {
-  res.json({ message: "Secure data" });
+app.get("/", authenticate(), function(req, res) {
+  res.json({ message: "Welcome to the jungle!", user: req.session.user });
 });
 
-// stage2: tested user
-app.get("/me", authenticate(), function(req, res) {
-  res.json(req.user);
-});
-
-// stage3 : tested scope
+// stage2 : tested scope
 app.get("/profile", authenticate({ scope: "profile" }), function(req, res) {
   res.json(req.user);
 });
@@ -53,7 +48,7 @@ app.use(function(req, res, next) {
 // error handlers
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
-  console.log(err);
+  console.log(err.stack);
   res.json({
     message: err.message,
     error: err

@@ -23,6 +23,9 @@ module.exports = app => {
 
   // login page
   app.get("/login", function(req, res, next) {
+    // to stimulate
+    // response_type=code&client_id=democlient&redirect_uri=http%3A%2F%2Flocalhost%2Fcb&scope=&state=teststate
+
     const data = {
       response_type: req.query.response_type,
       client_id: req.query.client_id,
@@ -36,7 +39,7 @@ module.exports = app => {
       return res.render("./pages/login", data);
     } else {
       const query = querystring.stringify(data);
-      return res.redirect(`/authorise?${query}`);
+      return res.redirect(`/authorize?${query}`);
     }
   });
 
@@ -73,7 +76,7 @@ module.exports = app => {
       );
 
     // Check for authorization grant type
-    if (response_type === "code") {
+    if (data.response_type === "code") {
       const query = querystring.stringify(data);
       return res.redirect(`/authorize?${query}`);
     } else {
@@ -125,18 +128,20 @@ module.exports = app => {
       );
     }
 
-    data.client_name = client.name;
+    // @TODO: name field can be added
+    data.client_name = client.clientId;
     return res.render("./pages/authorize", data);
   });
 
   // authorize api
   app.post("/authorize", async function(req, res, next) {
+    const hasAuthorized = req.body.authorized;
+
     if (!(hasAuthorized && hasAuthorized === "on")) {
       // @TODO - redirect the user from he/she came
-      return res.json({ message: "Why you no want to authorize?" });
+      return res.json({ message: "Why you no want to authorize man?" });
     }
 
-    const hasAuthorized = req.body.authorized;
     const data = {
       response_type: req.body.response_type,
       client_id: req.body.client_id,

@@ -26,7 +26,7 @@ OAuthSpec.getRefreshToken = refreshToken => {
     .populate("client");
 };
 
-// authorizationCode [String]
+// code [String]
 OAuthSpec.getAuthorizationCode = authorizationCode => {
   console.log("getAuthorizationCode", authorizationCode);
   return OAuthAuthorizationCode.findOne({ authorizationCode })

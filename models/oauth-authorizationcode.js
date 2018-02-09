@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 module.exports = mongoose.model(
   "OAuthAuthorizationCode",
   new Schema({
-    code: String,
+    authorizationCode: String,
     expiresAt: Date,
     scope: String,
     redirectUri: String,
